@@ -9,7 +9,7 @@ import android.widget.EditText
 class InputActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_input)
+        setContentView(R.layout.fragment_input)
 
         val submitButton: Button = findViewById(R.id.submitButton)
         submitButton.setOnClickListener {
