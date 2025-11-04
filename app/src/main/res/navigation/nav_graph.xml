@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/LoginFragment">
+    app:startDestination="@id/FeedFragment">
 
     <fragment
         android:id="@+id/LoginFragment"
@@ -26,5 +26,11 @@
             android:id="@+id/action_register_to_login"
             app:destination="@id/LoginFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/FeedFragment"
+        android:name="eu.mcomputing.mobv.zadanie.FeedFragment"
+        android:label="feed"
+        tools:layout="@layout/fragment_feed" />
 
 </navigation>

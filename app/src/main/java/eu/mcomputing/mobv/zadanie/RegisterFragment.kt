@@ -11,7 +11,7 @@ import androidx.navigation.fragment.findNavController
 class RegisterFragment : Fragment(R.layout.fragment_register) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+        super.onViewCreated(view, savedInstanceState)
 
         val submitButton: Button = view.findViewById(R.id.submitButton)
         submitButton.setOnClickListener {
