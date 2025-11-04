@@ -6,24 +6,22 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 
-class LoginActivity : Fragment(R.layout.fragment_login) {
+class RegisterFragment : Fragment(R.layout.fragment_register) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        //setContentView(R.layout.fragment_login)
+        super.onCreate(savedInstanceState)
 
         val submitButton: Button = view.findViewById(R.id.submitButton)
         submitButton.setOnClickListener {
             val input1: String = view.findViewById<EditText>(R.id.editText1).text.toString()
             val input2: String = view.findViewById<EditText>(R.id.editText2).text.toString()
-
         }
 
         val signinButton: Button = view.findViewById(R.id.signinButton)
         signinButton.setOnClickListener {
-            val intent = Intent(requireContext(), InputActivity::class.java)
-            startActivity(intent)
+            findNavController().navigate(R.id.action_register_to_login)
 
         }
     }
