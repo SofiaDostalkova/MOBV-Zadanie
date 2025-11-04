@@ -33,4 +33,16 @@
         android:label="feed"
         tools:layout="@layout/fragment_feed" />
 
+    <fragment
+        android:id="@+id/ProfileFragment"
+        android:name="eu.mcomputing.mobv.zadanie.ProfileFragment"
+        android:label="profile"
+        tools:layout="@layout/fragment_profile" />
+
+    <fragment
+        android:id="@+id/MapFragment"
+        android:name="eu.mcomputing.mobv.zadanie.MapFragment"
+        android:label="map"
+        tools:layout="@layout/fragment_map" />
+
 </navigation>

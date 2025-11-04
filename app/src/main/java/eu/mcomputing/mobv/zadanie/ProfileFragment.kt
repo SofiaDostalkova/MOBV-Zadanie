@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import eu.mcomputing.mobv.zadanie.R
 
-class FeedFragment : Fragment(R.layout.fragment_feed) {
+class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -17,6 +17,5 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
         val bottomBar = view.findViewById<CustomBottomBar>(R.id.bottom_menu)
         val navController = findNavController()
         bottomBar.setupWithNavController(navController)
-
     }
 }
