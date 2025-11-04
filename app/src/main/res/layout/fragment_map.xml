@@ -16,6 +16,12 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginBottom="16dp" />
 
+    <com.mapbox.maps.MapView
+        xmlns:mapbox="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/mapView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <eu.mcomputing.mobv.zadanie.CustomBottomBar
         android:id="@+id/bottom_menu"
         android:layout_width="0dp"

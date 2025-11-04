@@ -14,28 +14,28 @@
         android:padding="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/icon_list" />
-
-    <ImageView
-        android:id="@+id/icon_list"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:src="@drawable/outline_account_circle_24"
-        android:contentDescription="@string/zoznam"
-        android:padding="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/icon_map"
         app:layout_constraintEnd_toStartOf="@id/icon_profile" />
 
     <ImageView
         android:id="@+id/icon_profile"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:src="@drawable/outline_format_list_bulleted_24"
+        android:src="@drawable/outline_account_circle_24"
         android:contentDescription="@string/profil"
         android:padding="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/icon_list"
+        app:layout_constraintStart_toEndOf="@id/icon_map"
+        app:layout_constraintEnd_toStartOf="@id/icon_list" />
+
+    <ImageView
+        android:id="@+id/icon_list"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:src="@drawable/outline_format_list_bulleted_24"
+        android:contentDescription="@string/zoznam"
+        android:padding="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/icon_profile"
         app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
