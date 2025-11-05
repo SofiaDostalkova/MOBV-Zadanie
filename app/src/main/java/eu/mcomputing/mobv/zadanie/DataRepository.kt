@@ -3,6 +3,7 @@ package eu.mcomputing.mobv.zadanie
 import android.content.Context
 import java.io.IOException
 import java.security.MessageDigest
+import java.util.UUID
 
 class DataRepository private constructor(
     private val service: ApiService,
@@ -44,11 +45,12 @@ class DataRepository private constructor(
                 response.body()?.let { json ->
                     val newUser = User(username, email, json.uid, json.access, json.refresh)
                     val hashedPassword = hashPassword(password)
-
-                    cache.insertUserItems(
-                        listOf(UserEntity(json.uid, username, email, hashedPassword))
+                    val newUserEntity = UserEntity(
+                        username = username,
+                        email = email,
+                        password = hashedPassword
                     )
-
+                    cache.insertUserItems(listOf(newUserEntity))
                     return Pair("Registration successful! You can log in now.", newUser)
                 }
             }

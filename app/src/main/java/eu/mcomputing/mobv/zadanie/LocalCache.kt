@@ -12,7 +12,7 @@ class LocalCache(private val dao: DbDao) {
         dao.insertUserItems(items)
     }
 
-    fun getUserItem(uid: String): LiveData<UserEntity?> {
+    fun getUserItem(uid: Int): LiveData<UserEntity?> {
         return dao.getUserItem(uid)
     }
 

@@ -10,7 +10,7 @@ interface DbDao {
     suspend fun insertUserItems(items: List<UserEntity>)
 
     @Query("SELECT * FROM users WHERE uid = :uid")
-    fun getUserItem(uid: String): LiveData<UserEntity?>
+    fun getUserItem(uid: Int): LiveData<UserEntity?>
 
     @Query("SELECT * FROM users")
     fun getUsers(): LiveData<List<UserEntity?>>
