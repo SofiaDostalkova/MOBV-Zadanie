@@ -2,16 +2,15 @@ package eu.mcomputing.mobv.zadanie
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.RecyclerView
-import eu.mcomputing.mobv.zadanie.R
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 class FeedFragment : Fragment(R.layout.fragment_feed) {
+    private lateinit var viewModel: FeedViewModel
+    private lateinit var adapter: FeedAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -20,31 +19,17 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
         val navController = findNavController()
         bottomBar.setupWithNavController(navController)
 
-        val recyclerView: RecyclerView = view.findViewById(R.id.feedRecyclerView)
-        val myDataList = listOf(
-            FeedItem(R.drawable.ic_launcher_foreground, "Post 1"),
-            FeedItem(R.drawable.ic_launcher_foreground, "Post 2"),
-            FeedItem(R.drawable.ic_launcher_foreground, "Post 3"),
-            FeedItem(R.drawable.ic_launcher_foreground, "Post 4"),
-            FeedItem(R.drawable.ic_launcher_foreground, "Post 5"),
-            FeedItem(R.drawable.ic_launcher_foreground, "Post 6"),
-            FeedItem(R.drawable.ic_launcher_foreground, "Post 7"),
-            FeedItem(R.drawable.ic_launcher_foreground, "Post 8"),
-            FeedItem(R.drawable.ic_launcher_foreground, "Post 9"),
-            FeedItem(R.drawable.ic_launcher_foreground, "Post 10"),
-            FeedItem(R.drawable.ic_launcher_foreground, "Post 11"),
-            FeedItem(R.drawable.ic_launcher_foreground, "Post 12"),
-            FeedItem(R.drawable.ic_launcher_foreground, "Post 13"),
-            FeedItem(R.drawable.ic_launcher_foreground, "Post 14"),
-            FeedItem(R.drawable.ic_launcher_foreground, "Post 15"),
-            FeedItem(R.drawable.ic_launcher_foreground, "Post 16"),
-            FeedItem(R.drawable.ic_launcher_foreground, "Post 17"),
-            FeedItem(R.drawable.ic_launcher_foreground, "Post 18"),
-            FeedItem(R.drawable.ic_launcher_foreground, "Post 19"),
-            FeedItem(R.drawable.ic_launcher_foreground, "Post 20")
-
-        )
-        recyclerView.adapter = FeedAdapter(myDataList)
+        val recyclerView = view.findViewById<RecyclerView>(R.id.feedRecyclerView)
+        adapter = FeedAdapter(emptyList())
+        recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
+
+        viewModel = ViewModelProvider(this)[FeedViewModel::class.java]
+
+        viewModel.feedItems.observe(viewLifecycleOwner) { items ->
+            adapter.updateItems(items)
+        }
+
+        viewModel.loadFeed()
     }
 }

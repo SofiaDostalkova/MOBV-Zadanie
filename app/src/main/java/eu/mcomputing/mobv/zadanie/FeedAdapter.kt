@@ -9,7 +9,7 @@ data class FeedItem(
     val text: String
 )
 
-class FeedAdapter(private val data: List<FeedItem>) : RecyclerView.Adapter<FeedViewHolder>() {
+class FeedAdapter(private var data: List<FeedItem>) : RecyclerView.Adapter<FeedViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FeedViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.feed_item, parent, false)
@@ -24,4 +24,8 @@ class FeedAdapter(private val data: List<FeedItem>) : RecyclerView.Adapter<FeedV
 
     override fun getItemCount(): Int = data.size
 
+    fun updateItems(newData: List<FeedItem>) {
+        data = newData
+        notifyDataSetChanged()
+    }
 }
