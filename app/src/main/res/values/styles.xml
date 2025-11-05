@@ -2,17 +2,18 @@
 
     <style name="BaseTextStyle">
         <item name="android:textSize">16sp</item>
-        <item name="android:textColor">#000000</item>
+        <item name="android:textColor">#8057B0</item>
     </style>
 
     <style name="LargeTextStyle" parent="BaseTextStyle">
         <item name="android:textSize">24sp</item>
         <item name="android:textStyle">bold</item>
+        <item name="android:textColor">#432D5C</item>
     </style>
 
     <style name="SmallTextStyle" parent="BaseTextStyle">
         <item name="android:textSize">12sp</item>
-        <item name="android:textColor">#666666</item>
+        <item name="android:textColor">#474547</item>
     </style>
 
 </resources>

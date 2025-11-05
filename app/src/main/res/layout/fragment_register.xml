@@ -4,6 +4,7 @@
     android:layout_height="match_parent"
     android:paddingTop="64dp"
     android:paddingHorizontal="55dp"
+    android:background="@color/backgroundColor"
     >
 
     <TextView
@@ -31,6 +32,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="Zadajte používateľské meno"
+        android:background="@color/backgroundLight"
         app:boxStrokeColor="@color/black"
         app:layout_constraintTop_toBottomOf="@id/label_username"
         app:layout_constraintStart_toStartOf="parent"
@@ -60,6 +62,7 @@
         android:layout_height="wrap_content"
         android:hint="Zadajte email"
         app:boxStrokeColor="@color/black"
+        android:background="@color/backgroundLight"
         app:layout_constraintTop_toBottomOf="@id/label1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -89,6 +92,7 @@
         android:hint="Zadajte heslo"
         app:boxStrokeColor="@color/black"
         app:endIconMode="password_toggle"
+        android:background="@color/backgroundLight"
         app:layout_constraintTop_toBottomOf="@id/label2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -107,6 +111,7 @@
         android:layout_height="wrap_content"
         android:text="Zaregistrovať sa"
         app:cornerRadius="12dp"
+        app:backgroundTint="@color/button"
         app:layout_constraintTop_toBottomOf="@id/password_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -130,7 +135,7 @@
         android:text="Prihlásiť sa"
         android:textColor="@color/black"
         app:cornerRadius="12dp"
-        app:backgroundTint="@android:color/transparent"
+        app:backgroundTint="@color/backgroundLight"
         app:strokeColor="@color/black"
         app:strokeWidth="1dp"
         app:layout_constraintTop_toBottomOf="@id/or"
