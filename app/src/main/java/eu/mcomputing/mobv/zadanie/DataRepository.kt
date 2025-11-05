@@ -32,12 +32,12 @@ class DataRepository private constructor(
     }
 
     suspend fun apiRegisterUser(username: String, email: String, password: String): Pair<String, User?> {
-        if (username.isEmpty()) return Pair("Username cannot be empty", null)
-        if (email.isEmpty()) return Pair("Email cannot be empty", null)
-        if (password.isEmpty()) return Pair("Password cannot be empty", null)
+        if (username.isEmpty()) return Pair("Používateľské meno nemôže byť prázdne", null)
+        if (email.isEmpty()) return Pair("Email nemôže byť prázdny", null)
+        if (password.isEmpty()) return Pair("Heslo nemôže byť prázdne", null)
 
-        if (cache.getUserByUsername(username) != null) return Pair("Username already exists", null)
-        if (cache.getUserByEmail(email) != null) return Pair("Email already exists", null)
+        if (cache.getUserByUsername(username) != null) return Pair("Používateľské meno už existuje", null)
+        if (cache.getUserByEmail(email) != null) return Pair("Email už existuje", null)
 
         try {
             val response = service.registerUser(UserRegistration(username, email, password))
@@ -51,41 +51,41 @@ class DataRepository private constructor(
                         password = hashedPassword
                     )
                     cache.insertUserItems(listOf(newUserEntity))
-                    return Pair("Registration successful! You can log in now.", newUser)
+                    return Pair("Registrácia bola úspešná! Môžete sa prihlásiť.", newUser)
                 }
             }
-            return Pair("Failed to create user", null)
+            return Pair("Nepodarilo sa vytvoriť používateľa", null)
         } catch (ex: IOException) {
             ex.printStackTrace()
-            return Pair("Check internet connection. Failed to create user.", null)
+            return Pair("Nepodarilo sa vytvoriť používateľa", null)
         } catch (ex: Exception) {
             ex.printStackTrace()
         }
 
-        return Pair("Fatal error. Failed to create user.", null)
+        return Pair("Fatal error. Nepodarilo sa vytvoriť používateľa.", null)
     }
 
 
     suspend fun apiLoginUser(email: String, password: String): Pair<String, User?> {
-        if (email.isEmpty()) return Pair("Email cannot be empty", null)
-        if (password.isEmpty()) return Pair("Password cannot be empty", null)
+        if (email.isEmpty()) return Pair("Email nemôže byť prázdny", null)
+        if (password.isEmpty()) return Pair("Heslo nemôže byť prázdne", null)
 
         try {
             val userEntity = cache.getUserByEmail(email)
-            if (userEntity == null) return Pair("No user found with this email", null)
+            if (userEntity == null) return Pair("nenašiel sa žiadny používateľ s týmto emailom", null)
 
             val hashedInput = hashPassword(password)
 
             return if (userEntity.password == hashedInput) {
                 val loggedInUser = User(userEntity.username, userEntity.email, userEntity.uid, "", "")
-                Pair("Login successful", loggedInUser)
+                Pair("Prihlásenie úspešné", loggedInUser)
             } else {
-                Pair("Invalid credentials", null)
+                Pair("Chybné údaje", null)
             }
 
         } catch (ex: Exception) {
             ex.printStackTrace()
-            return Pair("Fatal error. Failed to login.", null)
+            return Pair("Fatal error. Nepodarilo sa prihlásiť.", null)
         }
     }
 
@@ -101,14 +101,18 @@ class DataRepository private constructor(
                     return ""
                 }
             }
-            return "Failed to fetch users"
+            return "Nepodarilo sa získať používateľov"
         } catch (ex: IOException) {
             ex.printStackTrace()
-            return "Check internet connection. Failed to fetch users."
+            return "Nepodarilo sa získať používateľov"
         } catch (ex: Exception) {
             ex.printStackTrace()
         }
-        return "Fatal error. Failed to fetch users."
+        return "Fatal error. Nepodarilo sa získať používateľov."
+    }
+
+    suspend fun logoutUser() {
+        cache.logoutUser()
     }
 
     fun getUsers() = cache.getUsers()
