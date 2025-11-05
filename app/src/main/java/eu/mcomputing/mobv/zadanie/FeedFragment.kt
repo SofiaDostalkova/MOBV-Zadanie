@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.Factory
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -24,12 +25,25 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        viewModel = ViewModelProvider(this)[FeedViewModel::class.java]
+        val repository = DataRepository.getInstance(requireContext())
+        viewModel = ViewModelProvider(this, object : Factory {
+            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                return FeedViewModel(repository) as T
+            }
+        })[FeedViewModel::class.java]
 
-        viewModel.feedItems.observe(viewLifecycleOwner) { items ->
-            adapter.updateItems(items)
+        viewModel.users.observe(viewLifecycleOwner) { users ->
+            users?.let {
+                val items = it.map { user ->
+                    FeedItem(
+                        R.drawable.ic_launcher_foreground,
+                        user?.username ?: "Unknown user"
+                    )
+                }
+                adapter.updateItems(items)
+            }
         }
 
-        viewModel.loadFeed()
+        viewModel.refreshUsers()
     }
 }

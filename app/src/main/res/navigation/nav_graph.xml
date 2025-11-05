@@ -14,6 +14,10 @@
         <action
             android:id="@+id/action_login_to_register"
             app:destination="@id/RegisterFragment" />
+
+        <action
+            android:id="@+id/action_login_to_feed"
+            app:destination="@id/FeedFragment" />
     </fragment>
 
     <fragment
