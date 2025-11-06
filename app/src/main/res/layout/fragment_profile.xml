@@ -14,7 +14,7 @@
         style="@style/LargeTextStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Profil používateľa"
+        android:text="@string/user_profile"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -56,7 +56,7 @@
         android:id="@+id/logoutButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Odhlásiť sa"
+        android:text="@string/logout_button"
         android:textColor="@color/black"
         app:cornerRadius="12dp"
         app:backgroundTint="@android:color/transparent"

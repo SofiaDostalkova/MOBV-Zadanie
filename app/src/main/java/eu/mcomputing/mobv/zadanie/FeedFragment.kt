@@ -37,7 +37,7 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
                 val items = it.map { user ->
                     FeedItem(
                         R.drawable.ic_launcher_foreground,
-                        user?.username ?: "Neznámy používateľ"
+                        user?.username ?: "Anonym"
                     )
                 }
                 adapter.updateItems(items)

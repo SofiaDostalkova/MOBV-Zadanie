@@ -1,0 +1,35 @@
+<resources>
+    <string name="app_name">MOBV Project</string>
+    <string name="mapa">Map</string>
+    <string name="zoznam">List</string>
+    <string name="profil">Profile</string>
+    <string name="user_profile">User Profile</string>
+    <string name="mapbox_access_token">pk.eyJ1IjoiZG9zdGFsa292YSIsImEiOiJjbWhrb2JnMjYxcnhvMmlyNGRrYWlxcndsIn0.dlhrrTNFCJTuNW0jcQ_Lmw</string>
+    <string name="login_title">Login</string>
+    <string name="email_label">Email</string>
+    <string name="email_hint">Enter email</string>
+    <string name="password_label">Password</string>
+    <string name="password_hint">Enter Password</string>
+    <string name="login_button">Log in</string>
+    <string name="register_title">Register</string>
+    <string name="username_label">Username</string>
+    <string name="username_hint">Enter username</string>
+    <string name="login_prompt">Already have an account?</string>
+    <string name="register_prompt">Don\'t have an account yet?</string>
+    <string name="register_button">Register</string>
+    <string name="logout_button">Log out</string>
+    <string name="empty_username">Username cannot be empty</string>
+    <string name="empty_email">Email cannot be empty</string>
+    <string name="empty_password">Password cannot be empty</string>
+    <string name="email_exists">Email already exists</string>
+    <string name="user_exists">Username already exists</string>
+    <string name="register_success">Registration successful! You can log in now.</string>
+    <string name="register_fail">Registration failed</string>
+    <string name="user_not_found">No user was found with this email</string>
+    <string name="login_success">Login successful</string>
+    <string name="login_fail">Invalid credentials</string>
+    <string name="login_error">login failed</string>
+    <string name="get_users_fail">Could not get users</string>
+    <string name="logout_snackbar">You were successfully signed out</string>
+    <string name="feed_title">User List</string>
+</resources>

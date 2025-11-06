@@ -7,7 +7,8 @@ import java.util.UUID
 
 class DataRepository private constructor(
     private val service: ApiService,
-    private val cache: LocalCache
+    private val cache: LocalCache,
+    private val context: Context
 ) {
 
     companion object {
@@ -21,7 +22,8 @@ class DataRepository private constructor(
             INSTANCE ?: synchronized(lock) {
                 INSTANCE ?: DataRepository(
                     ApiService.create(),
-                    LocalCache(AppRoomDatabase.getInstance(context).appDao())
+                    LocalCache(AppRoomDatabase.getInstance(context).appDao()),
+                    context.applicationContext
                 ).also { INSTANCE = it }
             }
     }
@@ -32,12 +34,12 @@ class DataRepository private constructor(
     }
 
     suspend fun apiRegisterUser(username: String, email: String, password: String): Pair<String, User?> {
-        if (username.isEmpty()) return Pair("Používateľské meno nemôže byť prázdne", null)
-        if (email.isEmpty()) return Pair("Email nemôže byť prázdny", null)
-        if (password.isEmpty()) return Pair("Heslo nemôže byť prázdne", null)
+        if (username.isEmpty()) return Pair( context.getString(R.string.empty_username), null)
+        if (email.isEmpty()) return Pair(context.getString(R.string.empty_email), null)
+        if (password.isEmpty()) return Pair(context.getString(R.string.empty_password), null)
 
-        if (cache.getUserByUsername(username) != null) return Pair("Používateľské meno už existuje", null)
-        if (cache.getUserByEmail(email) != null) return Pair("Email už existuje", null)
+        if (cache.getUserByUsername(username) != null) return Pair(context.getString(R.string.user_exists), null)
+        if (cache.getUserByEmail(email) != null) return Pair(context.getString(R.string.email_exists), null)
 
         try {
             val response = service.registerUser(UserRegistration(username, email, password))
@@ -51,41 +53,41 @@ class DataRepository private constructor(
                         password = hashedPassword
                     )
                     cache.insertUserItems(listOf(newUserEntity))
-                    return Pair("Registrácia bola úspešná! Môžete sa prihlásiť.", newUser)
+                    return Pair(context.getString(R.string.register_success), newUser)
                 }
             }
-            return Pair("Nepodarilo sa vytvoriť používateľa", null)
+            return Pair(context.getString(R.string.register_fail), null)
         } catch (ex: IOException) {
             ex.printStackTrace()
-            return Pair("Nepodarilo sa vytvoriť používateľa", null)
+            return Pair(context.getString(R.string.register_fail), null)
         } catch (ex: Exception) {
             ex.printStackTrace()
         }
 
-        return Pair("Fatal error. Nepodarilo sa vytvoriť používateľa.", null)
+        return Pair(context.getString(R.string.register_fail), null)
     }
 
 
     suspend fun apiLoginUser(email: String, password: String): Pair<String, User?> {
-        if (email.isEmpty()) return Pair("Email nemôže byť prázdny", null)
-        if (password.isEmpty()) return Pair("Heslo nemôže byť prázdne", null)
+        if (email.isEmpty()) return Pair(context.getString(R.string.empty_email), null)
+        if (password.isEmpty()) return Pair(context.getString(R.string.empty_password), null)
 
         try {
             val userEntity = cache.getUserByEmail(email)
-            if (userEntity == null) return Pair("nenašiel sa žiadny používateľ s týmto emailom", null)
+            if (userEntity == null) return Pair(context.getString(R.string.user_not_found), null)
 
             val hashedInput = hashPassword(password)
 
             return if (userEntity.password == hashedInput) {
                 val loggedInUser = User(userEntity.username, userEntity.email, userEntity.uid, "", "")
-                Pair("Prihlásenie úspešné", loggedInUser)
+                Pair(context.getString(R.string.login_success), loggedInUser)
             } else {
-                Pair("Chybné údaje", null)
+                Pair(context.getString(R.string.login_fail), null)
             }
 
         } catch (ex: Exception) {
             ex.printStackTrace()
-            return Pair("Fatal error. Nepodarilo sa prihlásiť.", null)
+            return Pair(context.getString(R.string.login_error), null)
         }
     }
 
@@ -101,14 +103,14 @@ class DataRepository private constructor(
                     return ""
                 }
             }
-            return "Nepodarilo sa získať používateľov"
+            return context.getString(R.string.get_users_fail)
         } catch (ex: IOException) {
             ex.printStackTrace()
-            return "Nepodarilo sa získať používateľov"
+            return context.getString(R.string.get_users_fail)
         } catch (ex: Exception) {
             ex.printStackTrace()
         }
-        return "Fatal error. Nepodarilo sa získať používateľov."
+        return context.getString(R.string.get_users_fail)
     }
 
     suspend fun logoutUser() {
