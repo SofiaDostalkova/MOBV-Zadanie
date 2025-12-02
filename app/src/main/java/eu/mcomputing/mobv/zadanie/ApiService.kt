@@ -11,8 +11,6 @@ import retrofit2.http.GET
 data class UserRegistration(val name: String, val email: String, val password: String)
 data class RegistrationResponse(val uid: String, val access: String, val refresh: String)
 
-data class User(val username: String, val email: String, val uid: String, val access: String, val refresh: String)
-
 data class GeofenceUser(
     val uid: String,
     val name: String,
@@ -27,12 +25,19 @@ data class GeofenceResponse(
     val list: List<GeofenceUser>
 )
 
+data class UserLoginRequest(val name: String, val password: String)
+data class LoginResponse(val uid: String, val access: String, val refresh: String)
+
 interface ApiService {
 
     @Headers("x-apikey: c95332ee022df8c953ce470261efc695ecf3e784")
     @POST("user/create.php")
     suspend fun registerUser(@Body userInfo: UserRegistration): Response<RegistrationResponse>
 
+    @Headers("x-apikey: c95332ee022df8c953ce470261efc695ecf3e784")
+    @POST("user/login.php")
+    suspend fun loginUser(@Body userInfo: UserLoginRequest): Response<LoginResponse>
+    @Headers("x-apikey: c95332ee022df8c953ce470261efc695ecf3e784")
     @GET("geofence/list.php")
     suspend fun listGeofence(): Response<GeofenceResponse>
     companion object {
