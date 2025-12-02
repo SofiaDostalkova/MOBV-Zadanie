@@ -20,7 +20,7 @@ class DataRepository private constructor(
             INSTANCE ?: synchronized(lock) {
                 INSTANCE
                     ?: DataRepository(
-                        ApiService.create(),
+                        ApiService.create(context),
                         LocalCache(AppRoomDatabase.getInstance(context).appDao())
                     ).also { INSTANCE = it }
             }
@@ -83,5 +83,77 @@ class DataRepository private constructor(
             ex.printStackTrace()
         }
         return Pair("Fatal error. Failed to create user.", null)
+    }
+    suspend fun apiGetUser(
+        uid: String,
+        my_uid: String,
+        accessToken: String,
+        refreshToken: String
+    ): Pair<String, User?> {
+        try {
+            val response = service.getUser(
+                mapOf(
+                    "x-apikey" to "c95332ee022df8c953ce470261efc695ecf3e784",
+                    "Authorization" to "Bearer $accessToken"
+                ), uid
+            )
+
+            if (response.isSuccessful) {
+                response.body()?.let {
+                    return Pair(
+                        "",
+                        User(
+                            it.name,
+                            "",
+                            it.id,
+                            accessToken,
+                            refreshToken,
+                            it.photo
+                        )
+                    )
+                }
+            }
+
+            if (response.code() == 401) {
+                val refreshResponse = service.refreshToken(
+                    mapOf(
+                        "x-apikey" to AppConfig.API_KEY,
+                        "x-user" to my_uid
+                    ), RefreshTokenRequest(refreshToken)
+                )
+                if (refreshResponse.isSuccessful) {
+                    refreshResponse.body()?.let { newtoken ->
+                        val response2 = service.getUser(
+                            mapOf(
+                                "x-apikey" to AppConfig.API_KEY,
+                                "Authorization" to "Bearer ${newtoken.access}"
+                            ), uid
+                        )
+                        if (response2.isSuccessful) {
+                            response2.body()?.let {
+                                return Pair(
+                                    "",
+                                    User(
+                                        it.name,
+                                        "",
+                                        it.id,
+                                        newtoken.access,
+                                        newtoken.refresh,
+                                        it.photo
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            return Pair("Failed to load user", null)
+        } catch (ex: IOException) {
+            ex.printStackTrace()
+            return Pair("Check internet connection. Failed to load user.", null)
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+        return Pair("Fatal error. Failed to load user.", null)
     }
 }
