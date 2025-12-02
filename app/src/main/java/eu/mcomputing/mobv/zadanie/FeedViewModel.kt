@@ -14,8 +14,8 @@ class FeedViewModel(private val repository: DataRepository) : ViewModel() {
     fun refreshUsers() {
         viewModelScope.launch {
             loading.postValue(true)
-            val msg = repository.apiGetUsers()
-            _message.postValue(msg)
+            //val msg = repository.apiGetUsers()
+            //_message.postValue(msg)
             loading.postValue(false)
         }
     }

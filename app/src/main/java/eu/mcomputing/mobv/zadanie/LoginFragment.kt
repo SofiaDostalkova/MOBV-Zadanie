@@ -27,7 +27,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         val submitButton = view.findViewById<Button>(R.id.submitButton)
         val registerButton = view.findViewById<Button>(R.id.signinButton)
 
-        viewModel.loginResult.observe(viewLifecycleOwner) { result ->
+        /*viewModel.loginResult.observe(viewLifecycleOwner) { result ->
             val (message, user) = result
             if (user != null) {
                 Snackbar.make(submitButton, message, Snackbar.LENGTH_LONG).show()
@@ -42,7 +42,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
             val password = passwordInput.text.toString().trim()
             viewModel.loginUser(email, password)
         }
-
+*/
         registerButton.setOnClickListener {
             findNavController().navigate(R.id.action_login_to_register)
         }

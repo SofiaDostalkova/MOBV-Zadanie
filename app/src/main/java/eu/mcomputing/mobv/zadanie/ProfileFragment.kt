@@ -27,7 +27,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         val emailText = view.findViewById<TextView>(R.id.profileEmail)
         val logoutButton = view.findViewById<Button>(R.id.logoutButton)
 
-        viewModel.currentUser.observe(viewLifecycleOwner) { user ->
+      /*  viewModel.currentUser.observe(viewLifecycleOwner) { user ->
             if (user != null) {
                 usernameText.text = user.username
                 emailText.text = user.email
@@ -38,7 +38,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
             viewModel.logout()
             Snackbar.make(view, getString(R.string.logout_snackbar), Snackbar.LENGTH_SHORT).show()
             findNavController().navigate(R.id.action_profile_to_login)
-        }
+        }*/
 
     }
 }

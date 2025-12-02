@@ -32,7 +32,7 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
             }
         })[FeedViewModel::class.java]
 
-        viewModel.users.observe(viewLifecycleOwner) { users ->
+      /*  viewModel.users.observe(viewLifecycleOwner) { users ->
             users?.let {
                 val items = it.map { user ->
                     FeedItem(
@@ -42,7 +42,7 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
                 }
                 adapter.updateItems(items)
             }
-        }
+        }*/
 
         viewModel.refreshUsers()
     }

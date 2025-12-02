@@ -16,11 +16,15 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel = ViewModelProvider(requireActivity(), object : ViewModelProvider.Factory {
-            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-                return AuthViewModel(DataRepository.getInstance(requireContext())) as T
+        // Pass requireContext() to getInstance
+        viewModel = ViewModelProvider(
+            requireActivity(),
+            object : ViewModelProvider.Factory {
+                override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                    return AuthViewModel(DataRepository.getInstance(requireContext())) as T
+                }
             }
-        })[AuthViewModel::class.java]
+        )[AuthViewModel::class.java]
 
         val usernameInput = view.findViewById<EditText>(R.id.editTextUsername)
         val emailInput = view.findViewById<EditText>(R.id.editText1)
@@ -30,10 +34,11 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
 
         viewModel.registrationResult.observe(viewLifecycleOwner) {
             if (it.second != null) {
-                Snackbar.make(submitButton, it.first, Snackbar.LENGTH_LONG).show()
+                Snackbar.make(submitButton, "Registration successful", Snackbar.LENGTH_LONG).show()
                 usernameInput.text.clear()
                 emailInput.text.clear()
                 passwordInput.text.clear()
+                findNavController().navigate(R.id.action_register_to_login)
             } else {
                 Snackbar.make(submitButton, it.first, Snackbar.LENGTH_SHORT).show()
             }
@@ -43,7 +48,6 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
             val username = usernameInput.text.toString().trim()
             val email = emailInput.text.toString().trim()
             val password = passwordInput.text.toString().trim()
-
             viewModel.registerUser(username, email, password)
         }
 
