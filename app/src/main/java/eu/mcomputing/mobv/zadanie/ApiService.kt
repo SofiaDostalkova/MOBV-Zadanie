@@ -7,6 +7,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.Headers
 import retrofit2.http.POST
 import retrofit2.http.GET
@@ -52,6 +53,16 @@ data class RefreshTokenResponse(
     val refresh: String
 )
 
+data class UpdateGeofenceRequest(
+    val lat: Double,
+    val lon: Double,
+    val radius: Int
+)
+
+data class UpdateGeofenceResponse(
+    val success: Boolean
+)
+
 interface ApiService {
 
     @Headers("x-apikey: c95332ee022df8c953ce470261efc695ecf3e784")
@@ -82,6 +93,17 @@ interface ApiService {
     fun refreshTokenBlocking(
         @Body refreshInfo: RefreshTokenRequest
     ): Call<RefreshTokenResponse>
+
+    @POST("geofence/update.php")
+    suspend fun updateGeofence(
+        @HeaderMap headers: Map<String, String>,
+        @Body body: UpdateGeofenceRequest
+    ): Response<UpdateGeofenceResponse>
+
+    @DELETE("geofence/update.php")
+    suspend fun deleteGeofence(
+        @HeaderMap headers: Map<String, String>)
+            : Response<UpdateGeofenceResponse>
 
     companion object {
         fun create(context: Context): ApiService {

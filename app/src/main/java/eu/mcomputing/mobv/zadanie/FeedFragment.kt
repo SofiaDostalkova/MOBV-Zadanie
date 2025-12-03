@@ -50,6 +50,6 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
         }
 
         // Refresh users from API
-        viewModel.refreshUsers()
+        //viewModel.refreshUsers()
     }
 }

@@ -127,6 +127,7 @@ class DataRepository private constructor(
         }
         return Pair("Fatal error. Failed to create user.", null)
     }
+
     suspend fun apiGetUser(
         uid: String,
         my_uid: String,
@@ -198,5 +199,45 @@ class DataRepository private constructor(
             ex.printStackTrace()
         }
         return Pair("Fatal error. Failed to load user.", null)
+    }
+
+    suspend fun apiUpdateGeofence(
+        lat: Double,
+        lon: Double,
+        radius: Int,
+        accessToken: String
+    ): Boolean {
+        return try {
+            val headers = mapOf(
+                "x-apikey" to AppConfig.API_KEY,
+                "Authorization" to "Bearer $accessToken"
+            )
+            val response = service.updateGeofence(
+                headers,
+                UpdateGeofenceRequest(lat, lon, radius)
+            )
+            response.isSuccessful && response.body()?.success == true
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            false
+        }
+    }
+
+    suspend fun apiDeleteGeofence(accessToken: String): Boolean {
+        return try {
+            val headers = mapOf(
+                "x-apikey" to AppConfig.API_KEY,
+                "Authorization" to "Bearer $accessToken"
+            )
+            val response = service.deleteGeofence(headers)
+            response.isSuccessful && response.body()?.success == true
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            false
+        }
+    }
+
+    suspend fun clearCachedUsers() {
+        cache.deleteUserItems()
     }
 }
