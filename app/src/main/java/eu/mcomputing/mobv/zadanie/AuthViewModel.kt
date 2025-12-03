@@ -18,4 +18,14 @@ class AuthViewModel(private val dataRepository: DataRepository) : ViewModel() {
             _registrationResult.postValue(result)
         }
     }
+
+    private val _loginResult = MutableLiveData<Pair<String, User?>>()
+    val loginResult: LiveData<Pair<String, User?>> = _loginResult
+
+    fun loginUser(username: String, password: String) {
+        viewModelScope.launch {
+            val result = dataRepository.apiLoginUser(username, password)
+            _loginResult.postValue(result)
+        }
+    }
 }

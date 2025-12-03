@@ -25,10 +25,13 @@ class DataRepository private constructor(
                     ).also { INSTANCE = it }
             }
     }
-    suspend fun apiListGeofence(): String {
+    suspend fun apiListGeofence(accessToken: String): String {
         try {
-            val response = service.listGeofence()
-
+            val headers = mapOf(
+                "x-apikey" to "c95332ee022df8c953ce470261efc695ecf3e784",
+                "Authorization" to "Bearer $accessToken"
+            )
+            val response = service.listGeofence(headers)
             if (response.isSuccessful) {
                 response.body()?.let { geofenceResponse ->
                     val users = geofenceResponse.list.map { geofenceUser ->
@@ -36,8 +39,8 @@ class DataRepository private constructor(
                             uid = geofenceUser.uid,
                             name = geofenceUser.name,
                             updated = geofenceUser.updated,
-                            lat = geofenceUser.lat,
-                            lon = geofenceUser.lon,
+                            lat = geofenceResponse.me.lat,
+                            lon = geofenceResponse.me.lon,
                             radius = geofenceUser.radius,
                             photo = geofenceUser.photo
                         )
@@ -46,7 +49,6 @@ class DataRepository private constructor(
                     return ""
                 }
             }
-
             return "Failed to load users"
         } catch (ex: IOException) {
             ex.printStackTrace()
@@ -57,7 +59,48 @@ class DataRepository private constructor(
         return "Fatal error. Failed to load users."
     }
 
+
     fun getUsers() = cache.getUsers()
+
+    suspend fun apiLoginUser(
+        username: String,
+        password: String
+    ): Pair<String, User?> {
+        if (username.isEmpty()) {
+            return Pair("Username can not be empty", null)
+        }
+        if (password.isEmpty()) {
+            return Pair("Password can not be empty", null)
+        }
+        try {
+            val response = service.loginUser(UserLoginRequest(username, password))
+            if (response.isSuccessful) {
+                response.body()?.let { json_response ->
+                    if (json_response.uid == "-1") {
+                        return Pair("Wrong password or username.", null)
+                    }
+                    return Pair(
+                        "",
+                        User(
+                            username,
+                            "",
+                            json_response.uid,
+                            json_response.access,
+                            json_response.refresh
+                        )
+                    )
+                }
+            }
+            return Pair("Failed to login user", null)
+        } catch (ex: IOException) {
+            ex.printStackTrace()
+            return Pair("Check internet connection. Failed to login user.", null)
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+        return Pair("Fatal error. Failed to login user.", null)
+    }
+
     suspend fun apiRegisterUser(username: String, email: String, password: String) : Pair<String,User?>{
         if (username.isEmpty()){
             return Pair("Username can not be empty", null)
