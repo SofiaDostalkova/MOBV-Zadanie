@@ -34,6 +34,18 @@ class PreferenceData private constructor() {
         return User.fromJson(json)
     }
 
+    fun putSharing(context: Context?, enabled: Boolean) {
+        val sharedPref = getSharedPreferences(context) ?: return
+        val editor = sharedPref.edit()
+        editor.putBoolean(sharingKey, enabled)
+        editor.apply()
+    }
+
+    fun getSharing(context: Context?): Boolean {
+        val sharedPref = getSharedPreferences(context) ?: return false
+        return sharedPref.getBoolean(sharingKey, false)
+    }
+
     companion object {
         @Volatile
         private var INSTANCE: PreferenceData? = null
@@ -48,7 +60,7 @@ class PreferenceData private constructor() {
 
         private const val shpKey = "eu.mcomputing.mobv.zadanie"
         private const val userKey = "userKey"
-
+        private const val sharingKey = "sharingKey"
     }
 
 }
