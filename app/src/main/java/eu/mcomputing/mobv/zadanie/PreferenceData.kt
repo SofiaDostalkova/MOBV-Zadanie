@@ -46,6 +46,12 @@ class PreferenceData private constructor() {
         return sharedPref.getBoolean(sharingKey, false)
     }
 
+    fun updatePhoto(context: Context?, photoFileName: String) {
+        val user = getUser(context) ?: return
+        val updatedUser = user.copy(photo = photoFileName)
+        putUser(context, updatedUser)
+    }
+
     companion object {
         @Volatile
         private var INSTANCE: PreferenceData? = null

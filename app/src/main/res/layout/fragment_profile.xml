@@ -87,6 +87,28 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="8dp" />
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/chooseImageButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Choose Image"
+        app:cornerRadius="12dp"
+        app:layout_constraintTop_toBottomOf="@id/location_switch"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/deleteImageButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Delete Image"
+        app:cornerRadius="12dp"
+        app:layout_constraintTop_toBottomOf="@id/chooseImageButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"/>
+
     <eu.mcomputing.mobv.zadanie.CustomBottomBar
         android:id="@+id/bottom_menu"
         android:layout_width="0dp"

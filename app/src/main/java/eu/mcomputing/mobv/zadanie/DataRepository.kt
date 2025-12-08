@@ -1,12 +1,18 @@
 package eu.mcomputing.mobv.zadanie
 
 import android.content.Context
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.File
 import java.io.IOException
 import java.security.MessageDigest
 import java.util.UUID
 
 class DataRepository private constructor(
     private val service: ApiService,
+    private val uploadService: UploadService,
     private val cache: LocalCache
 ) {
     companion object {
@@ -21,6 +27,7 @@ class DataRepository private constructor(
                 INSTANCE
                     ?: DataRepository(
                         ApiService.create(context),
+                        UploadService.create(),
                         LocalCache(AppRoomDatabase.getInstance(context).appDao())
                     ).also { INSTANCE = it }
             }
@@ -239,5 +246,41 @@ class DataRepository private constructor(
 
     suspend fun clearCachedUsers() {
         cache.deleteUserItems()
+    }
+
+    suspend fun uploadUserPhoto(
+        accessToken: String,
+        file: File
+    ): Pair<Boolean, String?> {
+
+        val body = file.asRequestBody("image/jpeg".toMediaType())
+        val multipart = MultipartBody.Part.createFormData("image", file.name, body)
+
+        val headers = mapOf(
+            "Authorization" to "Bearer $accessToken",
+            "x-apikey" to AppConfig.API_KEY
+        )
+
+        val response = uploadService.uploadImage(headers, multipart)
+
+        return if (response.isSuccessful) {
+            val newPhoto = response.body()?.photo
+            Pair(true, newPhoto)
+        } else {
+            Pair(false, null)
+        }
+    }
+
+    suspend fun deleteUserPhoto(accessToken: String): Pair<Boolean, String?> {
+        val headers = mapOf(
+            "Authorization" to "Bearer $accessToken",
+            "x-apikey" to AppConfig.API_KEY
+        )
+
+        val response = uploadService.deletePhoto(headers)
+
+        return if (response.isSuccessful) {
+            Pair(true, response.body()?.photo)
+        } else Pair(false, null)
     }
 }

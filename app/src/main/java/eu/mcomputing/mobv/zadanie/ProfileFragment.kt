@@ -4,6 +4,8 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Looper
+import android.os.Build
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
@@ -18,6 +20,13 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.gms.location.*
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.result.PickVisualMediaRequest
+
 
 class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
@@ -27,7 +36,6 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
 
-    // --- Permissions setup ---
     private val PERMISSIONS_REQUIRED = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
 
     private val requestPermissionLauncher = registerForActivityResult(
@@ -42,9 +50,21 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         }
     }
 
-    private fun hasPermissions(): Boolean {
-        return PERMISSIONS_REQUIRED.all {
-            ContextCompat.checkSelfPermission(requireContext(), it) == PackageManager.PERMISSION_GRANTED
+    private val requestGalleryPermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) {
+                openGallery()
+            } else {
+                Toast.makeText(requireContext(), "Gallery permission denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+    // --- Pick image from gallery ---
+    private val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        if (uri != null) {
+            Log.d("PhotoPicker", "Selected URI: $uri")
+            handleSelectedPhoto(uri)
+        } else {
+            Log.d("PhotoPicker", "No media selected")
         }
     }
 
@@ -72,13 +92,44 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         val logoutButton = view.findViewById<Button>(R.id.logoutButton)
         val locationSwitch = view.findViewById<SwitchCompat>(R.id.location_switch)
 
+        val choosePhotoButton = view.findViewById<Button>(R.id.chooseImageButton)
+        val deletePhotoButton = view.findViewById<Button>(R.id.deleteImageButton)
+
+        // --- Load user info ---
         val user = PreferenceData.getInstance().getUser(requireContext())
         user?.let {
             usernameText.text = it.username
             emailText.text = it.email
+            it.photo?.let { photoPath ->
+                if (photoPath.isNotEmpty()) {
+                    val file = File(requireContext().filesDir, photoPath)
+                    if (file.exists()) profileImage.setImageURI(Uri.fromFile(file))
+                }
+            }
         }
 
-        /* Uncomment if you want to show user info
+        // --- Choose photo ---
+        choosePhotoButton.setOnClickListener {
+            if (checkPermissionsForGallery(true)) {
+                openGallery()
+            }
+        }
+
+        // --- Delete photo ---
+        deletePhotoButton.setOnClickListener {
+            lifecycleScope.launch {
+                val currentUser = PreferenceData.getInstance().getUser(requireContext()) ?: return@launch
+                val (success, _) = profileViewModel.getDataRepository().deleteUserPhoto(currentUser.access)
+                if (success) {
+                    profileImage.setImageResource(R.drawable.outline_account_circle_24)
+                    Toast.makeText(requireContext(), "Photo deleted", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(requireContext(), "Failed to delete photo", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        /* Uncomment if you want to show user info via LiveData
         authViewModel.currentUser.observe(viewLifecycleOwner) { user ->
             if (user != null) {
                 usernameText.text = user.username
@@ -109,11 +160,10 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
             PreferenceData.getInstance().getSharing(requireContext())
         )
 
-        // --- Observe the location sharing switch ---
+        // --- Observe location switch ---
         profileViewModel.sharingLocation.observe(viewLifecycleOwner) { enabled ->
             enabled?.let {
                 if (it) {
-                    // Enable sharing
                     if (!hasPermissions()) {
                         profileViewModel.sharingLocation.postValue(false)
                         requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -123,51 +173,133 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
                         startLocationUpdates()
                     }
                 } else {
-                    // Disable sharing
                     PreferenceData.getInstance().putSharing(requireContext(), false)
                     locationSwitch.isChecked = false
                     stopLocationUpdates()
-                    val user = PreferenceData.getInstance().getUser(requireContext()) ?: return@let
+                    val u = PreferenceData.getInstance().getUser(requireContext()) ?: return@let
                     viewLifecycleOwner.lifecycleScope.launch {
-                        profileViewModel.getDataRepository().apiDeleteGeofence(user.access)
+                        profileViewModel.getDataRepository().apiDeleteGeofence(u.access)
                         profileViewModel.getDataRepository().clearCachedUsers()
                     }
                 }
             }
         }
 
-        // --- Handle user toggling the switch ---
         locationSwitch.setOnCheckedChangeListener { _, isChecked ->
             profileViewModel.sharingLocation.postValue(isChecked)
         }
 
-        // --- Request permission at startup if needed ---
+        // --- Request location permission at startup ---
         if (!hasPermissions() && profileViewModel.sharingLocation.value == true) {
             requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
     }
 
-    // --- Start/stop location updates ---
+    // --- Gallery & Photo Handling ---
+    private fun openGallery() {
+        lifecycleScope.launch {
+            pickMedia.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.SingleMimeType("image/jpeg"))
+            )
+        }
+    }
+
+    private fun handleSelectedPhoto(uri: Uri) {
+        inputStreamToFile(uri)?.let { file ->
+            val profileImage = view?.findViewById<ImageView>(R.id.profileImage) ?: return
+            profileImage.setImageURI(Uri.fromFile(file))
+
+            val user = PreferenceData.getInstance().getUser(requireContext()) ?: return
+            lifecycleScope.launch {
+                val (success, _) = profileViewModel.getDataRepository().uploadUserPhoto(user.access, file)
+                if (success) {
+                    PreferenceData.getInstance().updatePhoto(requireContext(), file.name)
+                    Toast.makeText(requireContext(), "Photo uploaded successfully", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(requireContext(), "Failed to upload photo", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun inputStreamToFile(uri: Uri): File? {
+        val resolver = requireContext().applicationContext.contentResolver
+        resolver.openInputStream(uri).use { inputStream ->
+            var orig = File(requireContext().filesDir, "photo_copied.jpg")
+            if (orig.exists()) orig.delete()
+            orig = File(requireContext().filesDir, "photo_copied.jpg")
+
+            FileOutputStream(orig).use { fos ->
+                if (inputStream == null) {
+                    Log.d("vybrane", "stream null")
+                    return null
+                }
+                try {
+                    Log.d("vybrane", "copied")
+                    inputStream.copyTo(fos)
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                    return null
+                }
+            }
+            Log.d("PhotoPicker", "Copied file path: ${orig.absolutePath}")
+            return orig
+        }
+    }
+
+    // --- Permissions ---
+    private fun checkPermissionsForGallery(ask: Boolean = false): Boolean {
+        val check = allPermissionsGrantedForGallery()
+        if (ask && !check) {
+            requestGalleryPermission.launch(REQUIRED_PERMISSIONS()[0])
+        }
+        return check
+    }
+
+    private fun allPermissionsGrantedForGallery(): Boolean {
+        return REQUIRED_PERMISSIONS().all {
+            ContextCompat.checkSelfPermission(requireContext(), it) == PackageManager.PERMISSION_GRANTED
+        }
+    }
+
+    private fun REQUIRED_PERMISSIONS(): Array<String> {
+        return if (Build.VERSION.SDK_INT < 33) {
+            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+        } else if (Build.VERSION.SDK_INT == 33) {
+            arrayOf(Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO)
+        } else {
+            arrayOf(
+                Manifest.permission.READ_MEDIA_IMAGES,
+                Manifest.permission.READ_MEDIA_VIDEO,
+                Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
+            )
+        }
+    }
+
+    // --- Location updates ---
+    private fun hasPermissions(): Boolean {
+        return PERMISSIONS_REQUIRED.all {
+            ContextCompat.checkSelfPermission(requireContext(), it) == PackageManager.PERMISSION_GRANTED
+        }
+    }
+
     private fun startLocationUpdates() {
         if (!hasPermissions()) return
-        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000)
+        val request = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000)
             .setMinUpdateIntervalMillis(2000)
             .build()
-        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
+        fusedLocationClient.requestLocationUpdates(request, locationCallback, Looper.getMainLooper())
     }
 
     private fun stopLocationUpdates() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 
-    // --- Send location to server ---
     private fun sendLocationToServer(lat: Double, lon: Double) {
         val user = PreferenceData.getInstance().getUser(requireContext()) ?: return
         viewLifecycleOwner.lifecycleScope.launch {
             val success = profileViewModel.getDataRepository().apiUpdateGeofence(lat, lon, 500, user.access)
-            if (!success) {
-                Snackbar.make(requireView(), "Failed to send location", Snackbar.LENGTH_SHORT).show()
-            }
+            if (!success) Snackbar.make(requireView(), "Failed to send location", Snackbar.LENGTH_SHORT).show()
         }
     }
 
