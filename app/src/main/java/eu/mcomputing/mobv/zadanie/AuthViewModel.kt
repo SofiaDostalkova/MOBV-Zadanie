@@ -9,6 +9,8 @@ import kotlinx.coroutines.launch
 
 class AuthViewModel(private val dataRepository: DataRepository) : ViewModel() {
 
+    private val _currentUser = MutableLiveData<User?>()
+    val currentUser: LiveData<User?> get() = _currentUser
     private val _registrationResult = MutableLiveData<Pair<String, User?>>()
     val registrationResult: LiveData<Pair<String, User?>> get() = _registrationResult
 
@@ -19,13 +21,23 @@ class AuthViewModel(private val dataRepository: DataRepository) : ViewModel() {
         }
     }
 
-    private val _loginResult = MutableLiveData<Pair<String, User?>>()
-    val loginResult: LiveData<Pair<String, User?>> = _loginResult
+    private val _loginResult = MutableLiveData<Pair<String, User?>?>()
+    val loginResult: LiveData<Pair<String, User?>?> = _loginResult
 
     fun loginUser(username: String, password: String) {
         viewModelScope.launch {
             val result = dataRepository.apiLoginUser(username, password)
             _loginResult.postValue(result)
+            result.second?.let { _currentUser.postValue(it) }
         }
+    }
+
+    fun logout() {
+        _currentUser.postValue(null)
+        PreferenceData.getInstance().clearData(null)
+    }
+
+    fun clearLoginResult() {
+        _loginResult.postValue(null)
     }
 }

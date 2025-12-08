@@ -2,6 +2,8 @@ package eu.mcomputing.mobv.zadanie
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.os.Looper
 import android.os.Build
@@ -24,8 +26,12 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import android.net.Uri
+import android.os.AsyncTask
 import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.net.URL
 
 
 class ProfileFragment : Fragment(R.layout.fragment_profile) {
@@ -68,6 +74,19 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         }
     }
 
+    private fun loadImageFromUrl(url: String, imageView: ImageView) {
+        lifecycleScope.launch {
+            try {
+                val bitmap = withContext(Dispatchers.IO) {
+                    BitmapFactory.decodeStream(URL(url).openStream())
+                }
+                imageView.setImageBitmap(bitmap)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -102,8 +121,9 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
             emailText.text = it.email
             it.photo?.let { photoPath ->
                 if (photoPath.isNotEmpty()) {
-                    val file = File(requireContext().filesDir, photoPath)
-                    if (file.exists()) profileImage.setImageURI(Uri.fromFile(file))
+                    val cleanedPath = photoPath.removePrefix("../")
+                    val fullUrl = "https://upload.mcomputing.eu/$cleanedPath"
+                    loadImageFromUrl(fullUrl, profileImage)
                 }
             }
         }
@@ -129,20 +149,16 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
             }
         }
 
-        /* Uncomment if you want to show user info via LiveData
-        authViewModel.currentUser.observe(viewLifecycleOwner) { user ->
-            if (user != null) {
-                usernameText.text = user.username
-                emailText.text = user.email
-            }
-        }
-
         logoutButton.setOnClickListener {
+            PreferenceData.getInstance().clearData(requireContext())
             authViewModel.logout()
-            Snackbar.make(view, getString(R.string.logout_snackbar), Snackbar.LENGTH_SHORT).show()
+            lifecycleScope.launch {
+                profileViewModel.getDataRepository().clearCachedUsers()
+            }
+
+            Snackbar.make(requireView(), "Logged out successfully", Snackbar.LENGTH_SHORT).show()
             findNavController().navigate(R.id.action_profile_to_login)
         }
-        */
 
         // --- Initialize location client & callback ---
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())

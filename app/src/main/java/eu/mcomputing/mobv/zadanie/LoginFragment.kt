@@ -34,15 +34,15 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         }
 
         viewModel.loginResult.observe(viewLifecycleOwner) { result ->
-            val (message, user) = result
-            if (user != null) {
-                // Save the user to preferences so FeedViewModel can access the token
-                PreferenceData.getInstance().putUser(requireContext(), user)
-
-                Snackbar.make(submitButton, "Login successful", Snackbar.LENGTH_LONG).show()
-                findNavController().navigate(R.id.action_login_to_feed)
-            } else {
-                Snackbar.make(submitButton, message, Snackbar.LENGTH_SHORT).show()
+            result?.let { (message, user) ->
+                if (user != null) {
+                    PreferenceData.getInstance().putUser(requireContext(), user)
+                    Snackbar.make(submitButton, "Login successful", Snackbar.LENGTH_LONG).show()
+                    findNavController().navigate(R.id.action_login_to_feed)
+                } else {
+                    Snackbar.make(submitButton, message, Snackbar.LENGTH_SHORT).show()
+                }
+                viewModel.clearLoginResult()
             }
         }
 
