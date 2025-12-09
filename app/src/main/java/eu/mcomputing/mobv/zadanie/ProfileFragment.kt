@@ -314,7 +314,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
     private fun sendLocationToServer(lat: Double, lon: Double) {
         val user = PreferenceData.getInstance().getUser(requireContext()) ?: return
         viewLifecycleOwner.lifecycleScope.launch {
-            val success = profileViewModel.getDataRepository().apiUpdateGeofence(lat, lon, 500, user.access)
+            val success = profileViewModel.getDataRepository().apiUpdateGeofence(lat, lon, 100, user.access)
             if (!success) Snackbar.make(requireView(), "Failed to send location", Snackbar.LENGTH_SHORT).show()
         }
     }

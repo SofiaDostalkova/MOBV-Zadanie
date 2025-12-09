@@ -52,6 +52,7 @@ class DataRepository private constructor(
                             photo = geofenceUser.photo
                         )
                     }
+                    cache.clearUsers()
                     cache.insertUserItems(users)
                     return ""
                 }

@@ -12,6 +12,8 @@ class LocalCache(private val dao: DbDao) {
 
     suspend fun deleteUserItems() = dao.deleteUserItems()
 
+    suspend fun clearUsers() = dao.deleteUserItems()
+
     suspend fun logoutUser() {
         deleteUserItems()
     }
