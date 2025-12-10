@@ -75,8 +75,12 @@ class MapFragment : Fragment(R.layout.fragment_map) {
             ContextCompat.checkSelfPermission(requireContext(), it) == PackageManager.PERMISSION_GRANTED
         }
 
+    private lateinit var currentUser: User
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        currentUser = PreferenceData.getInstance().getUser(requireContext())!!
 
         mapView = view.findViewById(R.id.mapView)
         circleAnnotationManager = mapView?.annotations?.createCircleAnnotationManager()
@@ -90,7 +94,8 @@ class MapFragment : Fragment(R.layout.fragment_map) {
 
         feedViewModel.users.observe(viewLifecycleOwner) { users ->
             lastLocation?.let { center ->
-                showUsersOnMap(users.filterNotNull(), center)
+                val filtered = users.filterNotNull().filter { it.uid != currentUser.id }
+                showUsersOnMap(filtered, center)
             }
         }
 
@@ -168,7 +173,8 @@ class MapFragment : Fragment(R.layout.fragment_map) {
         addGeofenceCircle(point)
 
         feedViewModel.users.value?.let { users ->
-            showUsersOnMap(users.filterNotNull(), point)
+            val filtered = users.filterNotNull().filter { it.uid != currentUser.id }
+            showUsersOnMap(filtered, point)
         }
     }
 

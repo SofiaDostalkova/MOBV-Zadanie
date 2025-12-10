@@ -36,13 +36,19 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
 
         // Observe users
         viewModel.users.observe(viewLifecycleOwner) { users ->
-            users?.let {
-                val items = it.map { user ->
-                    FeedItem(R.drawable.ic_launcher_foreground, user?.name ?: "Anonym")
+            val currentUser = PreferenceData.getInstance().getUser(requireContext())
+
+            users
+                ?.filterNotNull()
+                ?.filter { it.uid != currentUser?.id }
+                ?.let { filtered ->
+                    val items = filtered.map { user ->
+                        FeedItem(R.drawable.ic_launcher_foreground, user.name ?: "Anonym")
+                    }
+                    adapter.updateItems(items)
                 }
-                adapter.updateItems(items)
-            }
         }
+
 
         // Observe loading state (optional)
         viewModel.loading.observe(viewLifecycleOwner) { isLoading ->
