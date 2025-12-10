@@ -14,13 +14,15 @@ class UserProfileFragment : Fragment(R.layout.fragment_user_profile) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val bottomBar = view.findViewById<CustomBottomBar>(R.id.bottom_menu)
+        bottomBar.setupWithNavController(findNavController())
+
         val uid = arguments?.getString("uid") ?: return
         val name = arguments?.getString("name") ?: "Unknown"
         val photoUrl = arguments?.getString("photoUrl")
 
         val imageView = view.findViewById<ImageView>(R.id.profile_image)
         val textView = view.findViewById<TextView>(R.id.profile_name)
-        val backButton = view.findViewById<Button>(R.id.back_button)
 
         textView.text = name
         photoUrl?.let {
@@ -30,8 +32,6 @@ class UserProfileFragment : Fragment(R.layout.fragment_user_profile) {
                 .into(imageView)
         }
 
-        backButton.setOnClickListener {
-            findNavController().navigate(R.id.MapFragment)
-        }
+
     }
 }

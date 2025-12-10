@@ -2,6 +2,7 @@ package eu.mcomputing.mobv.zadanie
 
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.Factory
@@ -16,17 +17,25 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Set up bottom bar
         val bottomBar = view.findViewById<CustomBottomBar>(R.id.bottom_menu)
         bottomBar.setupWithNavController(findNavController())
 
-        // Set up RecyclerView
+        val locationDisabledMessage = view.findViewById<TextView>(R.id.location_disabled_message)
+        val sharing = PreferenceData.getInstance().getSharing(requireContext())
+        locationDisabledMessage.visibility = if (sharing) View.GONE else View.VISIBLE
+
         val recyclerView = view.findViewById<RecyclerView>(R.id.feedRecyclerView)
-        adapter = FeedAdapter(emptyList())
+        adapter = FeedAdapter(emptyList()) { user ->
+            val bundle = Bundle().apply {
+                putString("uid", user.uid)
+                putString("name", user.name)
+                putString("photoUrl", user.photo)
+            }
+            findNavController().navigate(R.id.userProfileFragment, bundle)
+        }
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        // Set up ViewModel
         val repository = DataRepository.getInstance(requireContext())
         viewModel = ViewModelProvider(this, object : ViewModelProvider.Factory {
             override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
@@ -34,7 +43,6 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
             }
         })[FeedViewModel::class.java]
 
-        // Observe users
         viewModel.users.observe(viewLifecycleOwner) { users ->
             val currentUser = PreferenceData.getInstance().getUser(requireContext())
 
@@ -42,20 +50,14 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
                 ?.filterNotNull()
                 ?.filter { it.uid != currentUser?.id }
                 ?.let { filtered ->
-                    val items = filtered.map { user ->
-                        FeedItem(R.drawable.ic_launcher_foreground, user.name ?: "Anonym")
-                    }
-                    adapter.updateItems(items)
+                    adapter.updateItems(filtered)
                 }
         }
 
 
-        // Observe loading state (optional)
         viewModel.loading.observe(viewLifecycleOwner) { isLoading ->
-            // Show a progress bar or pull-to-refresh if you have one
         }
 
-        // Refresh users from API
         //viewModel.refreshUsers()
     }
 }

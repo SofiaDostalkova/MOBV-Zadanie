@@ -14,11 +14,22 @@
         style="@style/LargeTextStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/feed_title"
+        android:text="Nearby Users"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:padding="20dp"/>
+
+    <TextView
+        android:id="@+id/location_disabled_message"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Location sharing is off. Enable it to see nearby users."
+        android:padding="12dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/feedRecyclerView"

@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -91,6 +92,20 @@ class MapFragment : Fragment(R.layout.fragment_map) {
 
         val bottomBar = view.findViewById<CustomBottomBar>(R.id.bottom_menu)
         bottomBar.setupWithNavController(findNavController())
+
+        val sharing = PreferenceData.getInstance().getSharing(requireContext())
+
+        val mapContainer = view.findViewById<View>(R.id.map_container)
+        val disabledMessage = view.findViewById<TextView>(R.id.location_disabled_message)
+
+        if (!sharing) {
+            mapContainer.visibility = View.GONE
+            disabledMessage.visibility = View.VISIBLE
+            return
+        } else {
+            mapContainer.visibility = View.VISIBLE
+            disabledMessage.visibility = View.GONE
+        }
 
         feedViewModel.users.observe(viewLifecycleOwner) { users ->
             lastLocation?.let { center ->
