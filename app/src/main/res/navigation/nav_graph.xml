@@ -56,4 +56,11 @@
         android:label="map"
         tools:layout="@layout/fragment_map" />
 
+    <fragment
+        android:id="@+id/userProfileFragment"
+        android:name="eu.mcomputing.mobv.zadanie.UserProfileFragment"
+        android:label="User Profile"
+        tools:layout="@layout/fragment_user_profile" />
+
+
 </navigation>
