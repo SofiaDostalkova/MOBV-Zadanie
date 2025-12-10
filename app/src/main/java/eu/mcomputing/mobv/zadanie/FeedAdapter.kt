@@ -24,7 +24,6 @@ class FeedAdapter(
 
         holder.textView.text = user.name ?: "Anonymous"
 
-        // Load image (same logic as map fragment)
         if (!user.photo.isNullOrEmpty()) {
             Glide.with(holder.imageView.context)
                 .load("https://upload.mcomputing.eu/${user.photo}")

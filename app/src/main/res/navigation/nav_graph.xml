@@ -18,6 +18,10 @@
         <action
             android:id="@+id/action_login_to_feed"
             app:destination="@id/FeedFragment" />
+
+        <action
+            android:id="@+id/action_login_to_forgotPassword"
+            app:destination="@id/forgotPasswordFragment" />
     </fragment>
 
     <fragment
@@ -47,6 +51,9 @@
             app:destination="@id/LoginFragment"
             app:popUpTo="@id/nav_graph"
             app:popUpToInclusive="true"/>
+        <action
+            android:id="@+id/action_profile_to_changePasswordFragment"
+            app:destination="@id/ChangePasswordFragment" />
 
     </fragment>
 
@@ -61,6 +68,16 @@
         android:name="eu.mcomputing.mobv.zadanie.UserProfileFragment"
         android:label="User Profile"
         tools:layout="@layout/fragment_user_profile" />
+
+    <fragment
+        android:id="@+id/forgotPasswordFragment"
+        android:name="eu.mcomputing.mobv.zadanie.ForgotPasswordFragment"
+        android:label="Forgot Password" />
+
+    <fragment
+        android:id="@+id/ChangePasswordFragment"
+        android:name="eu.mcomputing.mobv.zadanie.ChangePasswordFragment"
+        android:label="Change Password" />
 
 
 </navigation>

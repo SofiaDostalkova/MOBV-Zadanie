@@ -284,4 +284,32 @@ class DataRepository private constructor(
             Pair(true, response.body()?.photo)
         } else Pair(false, null)
     }
+
+    suspend fun apiRequestPasswordReset(email: String): Boolean {
+        return try {
+            val headers = mapOf("x-apikey" to AppConfig.API_KEY)
+            val response = service.requestPasswordReset(headers, ForgotPasswordRequest(email))
+            response.isSuccessful && response.body()?.status == "success"
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
+    suspend fun apiChangePassword(accessToken: String, oldPassword: String, newPassword: String): Boolean {
+        return try {
+            val headers = mapOf(
+                "x-apikey" to AppConfig.API_KEY,
+                "Authorization" to "Bearer $accessToken"
+            )
+            val response = service.changePassword(headers, ChangePasswordRequest(oldPassword, newPassword))
+            response.isSuccessful && response.body()?.get("status") == "success"
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
+
+
 }

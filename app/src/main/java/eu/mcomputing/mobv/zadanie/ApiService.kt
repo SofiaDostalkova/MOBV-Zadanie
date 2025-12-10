@@ -63,6 +63,12 @@ data class UpdateGeofenceResponse(
     val success: Boolean
 )
 
+data class ForgotPasswordRequest(val email: String)
+data class ForgotPasswordResponse(val status: String, val message: String?)
+
+data class ChangePasswordRequest(val old_password: String, val new_password: String)
+
+
 interface ApiService {
 
     @Headers("x-apikey: c95332ee022df8c953ce470261efc695ecf3e784")
@@ -104,6 +110,19 @@ interface ApiService {
     suspend fun deleteGeofence(
         @HeaderMap headers: Map<String, String>)
             : Response<UpdateGeofenceResponse>
+
+    @POST("user/reset.php")
+    suspend fun requestPasswordReset(
+        @HeaderMap headers: Map<String, String>,
+        @Body request: ForgotPasswordRequest
+    ): Response<ForgotPasswordResponse>
+
+    @POST("user/password.php")
+    suspend fun changePassword(
+        @HeaderMap headers: Map<String, String>,
+        @Body request: ChangePasswordRequest
+    ): Response<Map<String,String>>
+
 
     companion object {
         fun create(context: Context): ApiService {

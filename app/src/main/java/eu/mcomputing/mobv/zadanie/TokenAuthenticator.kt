@@ -11,13 +11,11 @@ import okhttp3.Route
 class TokenAuthenticator(private val context: Context) : Authenticator {
     override fun authenticate(route: Route?, response: okhttp3.Response): Request? {
 
-        // Skip refresh for login/create/refresh endpoints
         val path = response.request.url.toUrl().path
         if (path.contains("/user/create.php") || path.contains("/user/login.php") || path.contains("/user/refresh.php")) {
             return null
         }
 
-        // Only handle 401
         if (response.code == 401) {
             val user = PreferenceData.getInstance().getUser(context)
             user?.let {
@@ -44,7 +42,6 @@ class TokenAuthenticator(private val context: Context) : Authenticator {
                 }
             }
 
-            // Logout user if refresh fails
             PreferenceData.getInstance().clearData(context)
         }
 

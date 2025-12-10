@@ -40,4 +40,14 @@ class AuthViewModel(private val dataRepository: DataRepository) : ViewModel() {
     fun clearLoginResult() {
         _loginResult.postValue(null)
     }
+
+    private val _resetResult = MutableLiveData<Boolean>()
+    val resetResult: LiveData<Boolean> = _resetResult
+
+    fun requestPasswordReset(email: String) {
+        viewModelScope.launch {
+            val success = dataRepository.apiRequestPasswordReset(email)
+            _resetResult.postValue(success)
+        }
+    }
 }

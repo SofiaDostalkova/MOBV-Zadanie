@@ -16,7 +16,6 @@ class AuthInterceptor(private val context: Context) : Interceptor {
             request.header("Authorization", "Bearer $it")
         }
 
-        // Add API key
         request.addHeader("x-apikey", AppConfig.API_KEY)
 
         return chain.proceed(request.build())

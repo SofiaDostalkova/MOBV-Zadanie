@@ -29,6 +29,7 @@ import android.net.Uri
 import android.os.AsyncTask
 import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
+import com.bumptech.glide.Glide
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.URL
@@ -64,7 +65,6 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
                 Toast.makeText(requireContext(), "Gallery permission denied", Toast.LENGTH_SHORT).show()
             }
         }
-    // --- Pick image from gallery ---
     private val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) {
             Log.d("PhotoPicker", "Selected URI: $uri")
@@ -75,22 +75,17 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
     }
 
     private fun loadImageFromUrl(url: String, imageView: ImageView) {
-        lifecycleScope.launch {
-            try {
-                val bitmap = withContext(Dispatchers.IO) {
-                    BitmapFactory.decodeStream(URL(url).openStream())
-                }
-                imageView.setImageBitmap(bitmap)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
+        Glide.with(this)
+            .load(url)
+            .circleCrop()
+            .placeholder(R.drawable.outline_account_circle_24)
+            .error(R.drawable.outline_account_circle_24)
+            .into(imageView)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // --- Initialize ViewModels ---
         authViewModel = ViewModelProvider(requireActivity())[AuthViewModel::class.java]
 
         profileViewModel = ViewModelProvider(
@@ -114,28 +109,22 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         val choosePhotoButton = view.findViewById<Button>(R.id.chooseImageButton)
         val deletePhotoButton = view.findViewById<Button>(R.id.deleteImageButton)
 
-        // --- Load user info ---
         val user = PreferenceData.getInstance().getUser(requireContext())
         user?.let {
             usernameText.text = it.username
             emailText.text = it.email
-            it.photo?.let { photoPath ->
-                if (photoPath.isNotEmpty()) {
-                    val cleanedPath = photoPath.removePrefix("../")
-                    val fullUrl = "https://upload.mcomputing.eu/$cleanedPath"
-                    loadImageFromUrl(fullUrl, profileImage)
-                }
-            }
+            user?.photo?.takeIf { it.isNotEmpty() }?.let { photo ->
+                val fullUrl = "https://upload.mcomputing.eu/$photo"
+                loadImageFromUrl(fullUrl, profileImage)
+            } ?: profileImage.setImageResource(R.drawable.outline_account_circle_24)
         }
 
-        // --- Choose photo ---
         choosePhotoButton.setOnClickListener {
             if (checkPermissionsForGallery(true)) {
                 openGallery()
             }
         }
 
-        // --- Delete photo ---
         deletePhotoButton.setOnClickListener {
             lifecycleScope.launch {
                 val currentUser = PreferenceData.getInstance().getUser(requireContext()) ?: return@launch
@@ -160,7 +149,11 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
             findNavController().navigate(R.id.action_profile_to_login)
         }
 
-        // --- Initialize location client & callback ---
+        val changePasswordButton = view.findViewById<Button>(R.id.changePasswordButton)
+        changePasswordButton.setOnClickListener {
+            findNavController().navigate(R.id.action_profile_to_changePasswordFragment)
+        }
+
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
@@ -171,12 +164,10 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
             }
         }
 
-        // --- Load saved location sharing state ---
         profileViewModel.sharingLocation.postValue(
             PreferenceData.getInstance().getSharing(requireContext())
         )
 
-        // --- Observe location switch ---
         profileViewModel.sharingLocation.observe(viewLifecycleOwner) { enabled ->
             enabled?.let {
                 if (it) {
@@ -205,13 +196,11 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
             profileViewModel.sharingLocation.postValue(isChecked)
         }
 
-        // --- Request location permission at startup ---
         if (!hasPermissions() && profileViewModel.sharingLocation.value == true) {
             requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
     }
 
-    // --- Gallery & Photo Handling ---
     private fun openGallery() {
         lifecycleScope.launch {
             pickMedia.launch(
@@ -263,7 +252,6 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         }
     }
 
-    // --- Permissions ---
     private fun checkPermissionsForGallery(ask: Boolean = false): Boolean {
         val check = allPermissionsGrantedForGallery()
         if (ask && !check) {
@@ -292,7 +280,6 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         }
     }
 
-    // --- Location updates ---
     private fun hasPermissions(): Boolean {
         return PERMISSIONS_REQUIRED.all {
             ContextCompat.checkSelfPermission(requireContext(), it) == PackageManager.PERMISSION_GRANTED

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -48,6 +49,12 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
         registerButton.setOnClickListener {
             findNavController().navigate(R.id.action_login_to_register)
+        }
+
+        val forgotPasswordText = view.findViewById<TextView>(R.id.forgotPasswordText)
+
+        forgotPasswordText.setOnClickListener {
+            findNavController().navigate(R.id.action_login_to_forgotPassword)
         }
     }
 }
